@@ -58,6 +58,8 @@ export interface KnowledgePoint {
   questionIds?: string[]
   /** 关联演示 ID */
   demoIds?: string[]
+  /** 关联图解 ID（SVG 等距示意图，见 src/components/figures） */
+  figureIds?: string[]
   /** 相关知识点 ID（超链接跳转） */
   related?: string[]
 }

@@ -129,6 +129,36 @@ body {
   font-family: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
 }
 
+/* 行内强调：**加粗** 为结论，==高亮== 为核心术语 */
+.hl {
+  background: rgba(50, 85, 219, 0.12);
+  color: var(--brand);
+  font-weight: 600;
+  padding: 0 0.3em;
+  border-radius: 0.3em;
+}
+
+/* 骨架屏占位（加载中的内容块） */
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
 /* 平滑过渡（主题切换） */
 .theme-anim,
 .theme-anim * {

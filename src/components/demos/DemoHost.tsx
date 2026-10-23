@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { demoById } from '../../content/registry'
+import { BlockSkeleton } from '../layout/Skeleton'
 
 /**
  * 演示组件注册表 —— demoId → 组件。
@@ -52,9 +53,7 @@ export function DemoHost({ demoId }: { demoId: string }) {
   }
   return (
     <Suspense
-      fallback={
-        <div className="card p-8 text-center text-sm muted">正在加载演示…</div>
-      }
+      fallback={<BlockSkeleton height="h-72" />}
     >
       <Comp />
     </Suspense>

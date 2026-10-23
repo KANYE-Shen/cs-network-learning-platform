@@ -66,6 +66,18 @@ for (const d of demoMetas) {
   demoByKnowledge.get(d.knowledgeId).push(d)
 }
 
+// 等距图解：由知识点上的 figureIds 引用
+const figures = []
+for (const ch of chapters) {
+  for (const sec of ch.sections) {
+    for (const sub of sec.subsections) {
+      for (const kp of sub.knowledge) {
+        for (const id of kp.figureIds ?? []) figures.push({ id, chapterId: ch.id, knowledgeId: kp.id, title: kp.title })
+      }
+    }
+  }
+}
+
 const slidesCoveredByCh = new Map()
 for (const ch of chapters) {
   const slides = new Set()
@@ -91,6 +103,7 @@ push(`| 已实现知识点 | ${implementedIds.size} |`)
 push(`| 覆盖率 | ${Math.round((implementedIds.size / allOutline.length) * 100)}% |`)
 push(`| 题目总数 | ${questions.length} |`)
 push(`| 交互演示 | ${demoMetas.length} |`)
+push(`| 等距图解 | ${figures.length} |`)
 push(`| 对比表 | ${comparisons.length} |`)
 push(`| 章节总结 | ${chapters.length} / ${chapters.length} |`)
 push()
@@ -128,7 +141,15 @@ for (const ch of chapters) {
   push()
 }
 
-push('## 三、交互演示清单')
+push('## 三、等距图解清单')
+push('')
+push('| 图解 ID | 关联知识点 | 章节 | 说明 |')
+push('|---|---|---|---|')
+for (const f of figures) {
+  push(`| \`${f.id}\` | \`${f.knowledgeId}\` | ${f.chapterId} | ${f.title} |`)
+}
+push('')
+push('## 四、交互演示清单')
 push()
 push('| 演示 ID | 名称 | 章节 | 关联知识点 | 状态 |')
 push('|---|---|---|---|---|')
@@ -137,7 +158,7 @@ for (const d of demoMetas) {
 }
 push()
 
-push('## 四、对比表清单')
+push('## 五、对比表清单')
 push()
 push('| 对比表 ID | 名称 | 章节 |')
 push('|---|---|---|')
@@ -146,7 +167,7 @@ for (const c of comparisons) {
 }
 push()
 
-push('## 五、题目分布')
+push('## 六、题目分布')
 push()
 const byType = {}, byDiff = {}, bySource = {}, byChapter = {}
 for (const q of questions) {
@@ -166,7 +187,7 @@ for (const [k, v] of Object.entries(bySource).sort()) push(`| 来源 | ${srcLabe
 for (const [k, v] of Object.entries(byChapter).sort()) push(`| 章节 | ${k} | ${v} |`)
 push()
 
-push('## 六、覆盖校验结果')
+push('## 七、覆盖校验结果')
 push()
 const missing = allOutline.filter((p) => !implementedIds.has(p.id))
 const noQuestion = allOutline.filter((p) => !qByKnowledge.has(p.id))
@@ -184,7 +205,7 @@ if (missing.length) {
   push()
 }
 
-push('## 七、已知的 PPT 内容缺口与处理方式')
+push('## 八、已知的 PPT 内容缺口与处理方式')
 push()
 push('下列 PPT 页面为纯图示或结构性页面，无法（或不适合）用正文文字完整表达，已用其它方式承载：')
 push()

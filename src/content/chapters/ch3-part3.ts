@@ -26,17 +26,21 @@ export const ch3Part3: Subsection[] = [
             'TCP 的"字节流"意味着**没有消息边界**：应用发两次"AB"+"CD"，对端可能一次收到"ABCD"（或"ABC"+"D"）。UDP 则保留边界。这是二者最本质的语义差别之一。',
         },
         blocks: [
-          { type: 'term', zh: '最大报文段长度', en: 'Maximum Segment Size, MSS', def: 'TCP 报文段中应用数据的最大长度，由链路层 MTU 与 TCP/IP 首部大小决定，典型值约 1460 字节（以太网 MTU 1500 − IP 20 − TCP 20）。' },
+          { type: 'term', zh: '最大报文段长度', en: 'Maximum Segment Size, MSS', def: 'TCP 报文段中应用数据的最大长度，由链路层 MTU 与 TCP/IP 首部大小决定。典型值约 1460 字节：以太网 MTU 为 1500 字节，减去 IP 与 TCP 首部各 20 字节。' },
           {
             type: 'list',
             items: [
               '**点对点**：一个发送方、一个接收方（不支持多播）；',
               '**全双工**：同一连接上双向数据流（两端都能收发）；',
-              '**可靠、有序的字节流**：没有消息边界；',
+              '**可靠、有序的字节流**：==没有消息边界==；',
               '**流水线**：TCP 拥塞控制与流量控制共同设置窗口大小；',
               '**连接导向**：握手初始化发送方/接收方状态；',
               '**面向字节流**：序号按**字节**编号，而不是按报文段编号。',
             ],
+          },
+          {
+            type: 'p',
+            text: '类比：TCP 像一根水管，应用把水灌进去，对端只看到连续的水流，分不清你一次灌了几桶；UDP 则像一件件分开的包裹，边界清楚。边界：水管本身不会丢水，TCP 的可靠性要靠序号、确认与重传来实现。',
           },
           {
             type: 'callout',
@@ -67,7 +71,7 @@ export const ch3Part3: Subsection[] = [
           mechanism:
             '关键字段：序号（本段数据第一个字节的编号）、确认号（期望收到的下一个字节编号）、首部长度（4 位，单位 4 字节）、标志位（URG/ACK/PSH/RST/SYN/FIN）、接收窗口（rwnd，用于流量控制）、校验和、紧急指针。选项区长度可变（如 MSS 协商、时间戳）。',
           comparison:
-            'TCP 首部 20 字节 vs UDP 首部 8 字节：TCP 用序号/确认号/窗口/标志位实现了 UDP 没有的一切功能。',
+            'TCP 首部 20 字节，UDP 首部 8 字节。TCP 多出的序号、确认号、窗口与标志位字段，是它实现可靠传输与流量控制的基础。',
         },
         blocks: [
           {
@@ -89,7 +93,7 @@ export const ch3Part3: Subsection[] = [
             type: 'callout',
             tone: 'exam',
             title: '考试重点',
-            text: 'SYN 与 FIN 各消耗一个序号；只有 ACK 标志位的报文段不消耗序号（纯确认）。ACK 位与确认号字段是两回事——确认号字段在 ACK=1 时才有效。',
+            text: '==SYN 与 FIN 各消耗一个序号==；只带 ACK 标志的报文段（纯确认）不消耗序号。注意：ACK 标志位与确认号字段是两回事，确认号字段只在 ACK=1 时有效。',
           },
         ],
         questionIds: ['q3.5.2-01'],
@@ -100,7 +104,7 @@ export const ch3Part3: Subsection[] = [
         title: '序号与确认号（字节流编号）',
         en: 'Seq Numbers & ACKs',
         summary:
-          'TCP 按**字节**编号：序号是报文段中第一个数据字节的编号；确认号是**期望收到的下一个字节**的编号（累积确认）。乱序段的处理方式 TCP 规范未规定，由实现决定。',
+          'TCP 按字节编号：序号是报文段中第一个数据字节的编号；确认号是期望收到的下一个字节的编号（累积确认）。乱序段如何处理，TCP 规范未作规定，由实现决定。',
         tags: ['序号', '确认号', '累积确认'],
         sources: [{ kind: 'ppt', ppt: 'Chapter3', slides: [56, 57] }],
         insight: {
@@ -238,7 +242,7 @@ export const ch3Part3: Subsection[] = [
             type: 'callout',
             tone: 'exam',
             title: '考试重点',
-            text: '高频考点："TCP 使用单一重传定时器"（与 SR 的每段一个定时器对比）；"重传由超时事件与重复 ACK 触发"；"累积 ACK 的语义"。',
+            text: '高频考点：TCP 使用==单一重传定时器==（与 SR 的每段一个定时器对比）；重传由超时事件与重复 ACK 触发；累积 ACK 的语义。',
           },
         ],
         questionIds: ['q3.5.5-01'],
@@ -335,6 +339,7 @@ export const ch3Part3: Subsection[] = [
     knowledge: [
       {
         id: 'k3.5.8',
+        figureIds: ['f3.5.8-rwnd'],
         title: 'TCP 流量控制与 rwnd',
         en: 'Flow Control',
         summary:
@@ -392,23 +397,34 @@ export const ch3Part3: Subsection[] = [
         title: '两次握手为什么失败',
         en: '2-Way Handshake Failure',
         summary:
-          '两次握手无法处理"延迟的连接请求"与"重复的连接请求"：会造成服务器上的半开连接，或让服务器误以为旧请求是对新连接的确认。',
+          '两次握手无法处理延迟或重复的连接请求：可能留下半开连接，或让服务器建立一条客户端并不认可的错误连接。',
         tags: ['握手', '半开连接'],
         sources: [{ kind: 'ppt', ppt: 'Chapter3', slides: [77] }],
         insight: {
           why: '如果两次握手就够，TCP 不会自我麻烦做三次。两次握手的缺陷来自网络的**不可靠**：请求报文可能延迟、可能重复到达。',
           coreIdea: 'TCP 需要双方各自证明"我的请求对方收到了"且"对方的状态是新鲜的"——这至少需要三次交换。',
           mechanism:
-            'PPT 第 77 页的两个失败场景：① 客户端发 req_conn(x) 后终止，服务器仍为 x 建立连接 → **半开连接**（服务器白白维护状态）；② 延迟的 req_conn(x) 在连接 x 已完成后到达服务器，服务器误以为客户端要再建连接 → 服务器 ESTAB，但客户端已关闭 → 错误连接。',
+            '问题出在请求报文可能**延迟或重复**：服务器收到 SYN 时，无法判断它是新的请求，还是早已失效的旧请求。两次交换不足以让双方确认"对方当前的状态是新鲜的"。',
           comparison:
             '三次握手如何解决：服务器的 SYN+ACK 既确认了客户端的 SYN，又让服务器保持"半开"状态直到收到客户端的最终 ACK；客户端最终 ACK 证明"客户端确实还在"。迟到的旧 SYN 到达时，服务器回 SYN+ACK 后收不到最终 ACK（客户端发现序号陈旧会回 RST），半开连接不会长期存在。',
         },
         blocks: [
           {
+            type: 'list',
+            items: [
+              '**场景一（客户端发出请求后终止）**：客户端发送 req_conn(x) 后不再响应，服务器若已按两次握手建立连接，就会留下**半开连接**，白白维护状态；',
+              '**场景二（旧请求延迟到达）**：连接 x 已完成并关闭后，延迟的 req_conn(x) 才到达服务器。服务器误以为客户端要新建连接，回复确认后进入 ESTAB；但客户端并不认这个连接，结果是一条==错误连接==。',
+            ],
+          },
+          {
+            type: 'p',
+            text: '类比：朋友寄来一封很久以前的聚会邀请，你回一句“收到”并不代表聚会今天仍然有效；还要再问一次“现在还算数吗”。边界：网络里靠序号判断新旧，现实里靠当面确认。',
+          },
+          {
             type: 'callout',
             tone: 'exam',
             title: '考试重点',
-            text: '"为什么需要三次握手？"的标准答案要点：防止已失效的连接请求报文（延迟/重复的 SYN）导致服务器建立错误的或半开的连接。',
+            text: '"为什么需要三次握手？"的标准答案：防止已失效的连接请求报文（延迟或重复的 SYN）让服务器建立错误的或半开的连接。',
           },
         ],
         questionIds: ['q3.5.9-01'],
@@ -534,8 +550,12 @@ export const ch3Part3: Subsection[] = [
               '拥塞是 top-10 网络问题之一；',
               '代价一：拥塞时重传的包可能又在路上被丢——**资源浪费叠加**；',
               '代价二：多跳路径上，一个分组在前几跳消耗的传输与排队资源，在最后一跳被丢弃时全部作废；',
-              '代价三：重传流量进一步挤占带宽，形成"拥塞 → 丢包 → 重传 → 更拥塞"的恶性循环。',
+              '代价三：重传流量进一步挤占带宽，形成==拥塞 → 丢包 → 重传 → 更拥塞==的恶性循环。',
             ],
+          },
+          {
+            type: 'p',
+            text: '408 联系：路由器缓存相当于一个队列，缓存满后新到的分组被丢弃，类似操作系统里缓冲区满时写入失败。',
           },
           {
             type: 'callout',
@@ -565,10 +585,20 @@ export const ch3Part3: Subsection[] = [
         },
         blocks: [
           {
+            type: 'table',
+            caption: '两类拥塞控制方法',
+            headers: ['方法', '拥塞信号从哪来', '典型代表', '部署特点'],
+            rows: [
+              ['端到端', '发送方根据丢包、时延自行推断', 'TCP', '无需网络设备支持，部署容易'],
+              ['网络辅助（单比特）', '路由器在分组上标记拥塞', 'SNA、DECbit、ECN、ATM', '需要路由器支持'],
+              ['网络辅助（显式速率）', '路由器直接告知应使用的发送速率', 'ATM ABR', '需要全网设备配合'],
+            ],
+          },
+          {
             type: 'callout',
             tone: 'exam',
             title: '考试重点',
-            text: '必考：端到端 vs 网络辅助拥塞控制的定义与典型代表（TCP vs ECN/ATM ABR/DECbit）。',
+            text: '必考：==端到端==与网络辅助拥塞控制的定义及典型代表（TCP 对应前者，ECN、ATM ABR、DECbit 对应后者）。',
           },
         ],
         questionIds: ['q3.6.2-01'],
@@ -592,10 +622,20 @@ export const ch3Part3: Subsection[] = [
         },
         blocks: [
           {
+            type: 'list',
+            items: [
+              '**RM 信元**（Resource Management）：发送方定期发出，夹在数据信元之间沿途探路；',
+              '**NI 位**（No Increase）：轻微拥塞，交换机置位，提示发送方别再加速率；',
+              '**CI 位**（Congestion Indication）：拥塞，交换机置位，要求发送方降速；',
+              '**ER 字段**（2 字节 Explicit Rate）：显式速率，拥塞交换机把它改小，发送方取路径上最小的 ER 作上限；',
+              '**EFCI 位**：数据信元中的拥塞标记，交换机置 1；接收方看到后，把返回的 RM 信元中的 CI 位置 1。',
+            ],
+          },
+          {
             type: 'callout',
             tone: 'exam',
             title: '考试重点',
-            text: 'RM cell、NI 位、CI 位、ER 显式速率字段、EFCI 位——这五个术语常在选择题中出现，注意区分各字段的作用与修改者（交换机改 ER/NI/CI/EFCI，接收方根据 EFCI 置 CI）。',
+            text: '这五个术语常在选择题中出现，注意区分各自的作用与修改者：交换机可改 ER、NI、CI、EFCI，接收方根据 EFCI 置 CI。',
           },
         ],
         questionIds: ['q3.6.3-01'],
@@ -628,10 +668,19 @@ export const ch3Part3: Subsection[] = [
         },
         blocks: [
           {
+            type: 'list',
+            items: [
+              '收到 ACK（网络通畅）→ **加法增大**：每个 RTT 把 cwnd 加 1 个 MSS；',
+              '检测到丢包（假定拥塞）→ **乘法减小**：把 cwnd 减半；',
+              '窗口曲线因此呈**锯齿形**：线性爬升，遇丢包减半跌落，随后继续爬升；',
+              '全程是**隐式反馈**：没有路由器显式通知，只能靠 ACK 与丢包推断网络状态。',
+            ],
+          },
+          {
             type: 'callout',
             tone: 'exam',
             title: '考试重点',
-            text: '必考：AIMD 含义（Additive Increase, Multiplicative Decrease）；"TCP 是端到端拥塞控制，基于隐式反馈（ACK/丢包）"。',
+            text: '必考：AIMD 的含义（Additive Increase, Multiplicative Decrease）；TCP 是端到端拥塞控制，基于隐式反馈（ACK/丢包）。',
           },
         ],
         questionIds: ['q3.7.1-01'],
@@ -671,8 +720,8 @@ export const ch3Part3: Subsection[] = [
             type: 'example',
             title: '例题：cwnd 的演进',
             steps: [
-              '初始 cwnd = 1 MSS，ssthresh = 20 MSS：慢启动阶段 cwnd 依次为 1, 2, 4, 8, 16, 32…；',
-              '当 cwnd ≥ 20（ssthresh）时进入拥塞避免，此后每个 RTT 只增加 1 个 MSS；',
+              '初始 cwnd = 1 MSS，ssthresh = 20 MSS；慢启动每个 RTT 翻倍，依次为 1, 2, 4, 8, 16…；',
+              '下一次翻倍会达到 32，越过 ssthresh，于是转入拥塞避免；此后每个 RTT 只增加 1 个 MSS；',
               '若此时发生超时：ssthresh = cwnd/2，cwnd = 1 MSS，重新从慢启动开始。',
             ],
             answer: '慢启动指数增长（每 RTT 翻倍），拥塞避免线性增长（每 RTT +1 MSS）',
@@ -754,10 +803,21 @@ export const ch3Part3: Subsection[] = [
         },
         blocks: [
           {
+            type: 'table',
+            caption: '常见 TCP 拥塞控制变体',
+            headers: ['变体', '对超时 / 重复 ACK 的响应', '关键区别'],
+            rows: [
+              ['Tahoe', '超时或 3 个重复 ACK 都回到慢启动（cwnd = 1）', '没有快恢复'],
+              ['Reno', '3 个重复 ACK 进入快恢复（cwnd 减半加 3），超时才回慢启动', '有快恢复；教学模型就是 Reno'],
+              ['NewReno', '改进 Reno 在快恢复期间再次丢包时的处理', '一次恢复多个丢包'],
+              ['SACK', '选择性确认，告知发送方哪些段已收到', '避免不必要的重传'],
+            ],
+          },
+          {
             type: 'callout',
             tone: 'exam',
             title: '考试重点',
-            text: '常考：Tahoe 与 Reno 的区别（有无快恢复）；以及"教学模型 = Reno 行为"的对应关系。',
+            text: '常考：Tahoe 与 Reno 的区别（有无快恢复）；以及==教学模型 = Reno 行为==的对应关系。',
           },
         ],
         questionIds: ['q3.7.4-01'],

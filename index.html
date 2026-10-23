@@ -5,9 +5,161 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>计算机网络 · 交互式学习平台</title>
     <meta name="description" content="基于课程 PPT 的计算机网络中文交互式学习平台：知识讲解、动态演示、题库、错题本、收藏题本与章节总结。" />
+    <style>
+      /* 首屏骨架：JS 加载前即显示，React 挂载后被真实页面替换 */
+      #root {
+        min-height: 100vh;
+      }
+      .boot {
+        display: flex;
+        min-height: 100vh;
+        background: #f7f8fb;
+        font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      }
+      .boot .side {
+        width: 264px;
+        flex-shrink: 0;
+        padding: 20px 16px;
+        background: #fff;
+        border-right: 1px solid #e4e8ef;
+      }
+      .boot .main {
+        flex: 1;
+        min-width: 0;
+      }
+      .boot .top {
+        height: 56px;
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+        background: #fff;
+        border-bottom: 1px solid #e4e8ef;
+      }
+      .boot .body {
+        max-width: 1420px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      .boot .card {
+        background: #fff;
+        border: 1px solid #e4e8ef;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+      .boot .bar {
+        height: 12px;
+        border-radius: 6px;
+        margin: 12px 0;
+        background: linear-gradient(90deg, #eef1f6 25%, #dfe5ee 50%, #eef1f6 75%);
+        background-size: 200% 100%;
+        animation: boot-shimmer 1.4s ease-in-out infinite;
+      }
+      .boot .bar.w40 {
+        width: 40%;
+      }
+      .boot .bar.w70 {
+        width: 70%;
+      }
+      .boot .bar.h28 {
+        height: 28px;
+        width: 55%;
+      }
+      .boot .bar.h160 {
+        height: 160px;
+        border-radius: 10px;
+      }
+      .boot .pill {
+        height: 34px;
+        width: 360px;
+        max-width: 100%;
+        border-radius: 8px;
+        background: #f1f4f9;
+      }
+      .boot .nav {
+        height: 14px;
+        width: 70%;
+        margin: 16px 0;
+        border-radius: 6px;
+        background: #f1f4f9;
+      }
+      .boot .nav.sub {
+        width: 50%;
+        margin-left: 14px;
+      }
+      @keyframes boot-shimmer {
+        from {
+          background-position: 200% 0;
+        }
+        to {
+          background-position: -200% 0;
+        }
+      }
+      @media (max-width: 768px) {
+        .boot .side {
+          display: none;
+        }
+      }
+      @media (prefers-color-scheme: dark) {
+        .boot {
+          background: #0d1117;
+        }
+        .boot .side,
+        .boot .top,
+        .boot .card {
+          background: #151b23;
+          border-color: #273040;
+        }
+        .boot .pill,
+        .boot .nav {
+          background: #1b2230;
+        }
+        .boot .bar {
+          background: linear-gradient(90deg, #1b2230 25%, #273040 50%, #1b2230 75%);
+          background-size: 200% 100%;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .boot .bar {
+          animation: none;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot" role="status" aria-label="页面加载中">
+        <aside class="side">
+          <div class="nav" style="width:55%"></div>
+          <div class="nav sub"></div>
+          <div class="nav"></div>
+          <div class="nav"></div>
+          <div class="nav"></div>
+          <div class="nav" style="margin-top:28px"></div>
+          <div class="nav sub"></div>
+          <div class="nav sub"></div>
+          <div class="nav sub"></div>
+        </aside>
+        <div class="main">
+          <header class="top">
+            <div class="pill"></div>
+          </header>
+          <div class="body">
+            <div class="card">
+              <div class="bar w40"></div>
+              <div class="bar h28"></div>
+              <div class="bar w70"></div>
+              <div class="bar"></div>
+            </div>
+            <div class="card">
+              <div class="bar w40"></div>
+              <div class="bar h160"></div>
+              <div class="bar w70"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -41,6 +41,10 @@ node scripts/coverage-report.mjs        # 重新生成覆盖报告
 4. **演示准确性**
    - 演示必须反映协议真实行为，不做只供观赏的动画。
    - 新演示统一复用 `src/components/demos/DemoKit.tsx` 的控制条与步骤说明。
+   - 等距图解放在 `src/components/figures/`，用 `figureKit` 的 `FigureCard` 与 `Scene`；
+     图中每个数字必须与正文一致。图解 ID 形如 `f{知识点后缀}-{名称}`，在
+     `components/figures/registry.ts` 注册，并通过知识点的 `figureIds` 引用。
+     绘制可参考 anatomy skill 的 `SKILL.md` 与项目内 `components/iso/` 工具包。
 5. **路由与部署**
    - 保持 HashRouter，确保 `dist/index.html` 可双击直接打开。
 
@@ -49,8 +53,12 @@ node scripts/coverage-report.mjs        # 重新生成覆盖报告
 - 内容：`src/content/chapters/*.ts`、`src/content/questions/*.ts`、`comparisons.ts`、`demos/index.ts`
 - 用户数据：`src/db/studyDB.ts`
 - 页面：`src/pages/`；通用组件：`src/components/`
+- 图解：`src/components/figures/`（注册表 + 组件）；等距工具包：`src/components/iso/`（不要修改工具包）
 - 类型：`src/types/content.ts`
 - 测试：`src/test/`
+
+正文行内语法：`**加粗**` 表示结论，`==高亮==` 表示核心术语，`$...$` / `$$...$$` 表示公式。
+多字母下标（`d_{trans}`）会自动转为正体；裸数学符号必须包进 `$...$`，`presentation.test.ts` 会检查。
 
 大文件拆分：章节正文或题库单文件过长时，按 part 拆分后用一个聚合文件导出，
 参考 `chapters/ch3.ts` 与 `questions/index.ts`。

@@ -12,6 +12,7 @@ import KnowledgeIndex from '../components/layout/KnowledgeIndex'
 import InsightPanel from '../components/content/InsightPanel'
 import SourceBadges from '../components/content/SourceBadges'
 import { DemoHost } from '../components/demos/DemoHost'
+import { FigureHost } from '../components/figures/FigureHost'
 import QuestionCard from '../components/questions/QuestionCard'
 import { QUESTION_TYPE_LABEL, DIFFICULTY_LABEL } from '../components/questions/labels'
 
@@ -138,6 +139,7 @@ export default function ChapterPage() {
   const kFlat = flatKnowledge.find((x) => x.id === k.id)!
   const relatedQs = (k.questionIds ?? []).map((id) => questionById.get(id)).filter(Boolean)
   const demos = (k.demoIds ?? []).map((id) => demoById.get(id)).filter(Boolean)
+  const figures = k.figureIds ?? []
   const related = (k.related ?? []).map((id) => knowledgeById.get(id)).filter(Boolean)
 
   return (
@@ -176,9 +178,12 @@ export default function ChapterPage() {
 
       {k.insight && <InsightPanel insight={k.insight} />}
 
-      <article className="card p-5 sm:p-6">
-        <ContentRenderer blocks={k.blocks} onNavigate={(id) => navigate(resolveNav(id))} demoRegistry={demoRegistry} />
-      </article>
+      {figures.length > 0 && (
+        <section className="space-y-4">
+          <h2 className="text-lg font-semibold">图解</h2>
+          {figures.map((id) => <FigureHost key={id} figureId={id} />)}
+        </section>
+      )}
 
       {demos.length > 0 && (
         <section className="space-y-4">
@@ -186,6 +191,10 @@ export default function ChapterPage() {
           {demos.map((d) => d && <DemoHost key={d.id} demoId={d.id} />)}
         </section>
       )}
+
+      <article className="card p-5 sm:p-6">
+        <ContentRenderer blocks={k.blocks} onNavigate={(id) => navigate(resolveNav(id))} demoRegistry={demoRegistry} />
+      </article>
 
       {related.length > 0 && (
         <section className="card p-5">
