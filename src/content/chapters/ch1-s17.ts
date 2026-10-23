@@ -7,6 +7,7 @@ export const ch1S17: Subsection[] = [
           knowledge: [
             {
               id: 'k1.7.1',
+              figureIds: ['f1.7.1-timeline'],
               title: '从 ARPAnet 到商业化互联网',
               en: 'Internet History',
               summary:

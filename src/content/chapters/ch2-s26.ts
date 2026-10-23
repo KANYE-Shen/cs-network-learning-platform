@@ -224,6 +224,7 @@ export const ch2S26: Subsection[] = [
           knowledge: [
             {
               id: 'k2.6.2',
+              figureIds: ['f2.6.2-bittorrent'],
               title: 'BitTorrent：tracker、分块与 tit-for-tat',
               en: 'BitTorrent',
               summary:

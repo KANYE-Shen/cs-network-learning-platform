@@ -44,6 +44,7 @@ node scripts/coverage-report.mjs        # 重新生成覆盖报告
    - 等距图解放在 `src/components/figures/`，用 `figureKit` 的 `FigureCard` 与 `Scene`；
      图中每个数字必须与正文一致。图解 ID 形如 `f{知识点后缀}-{名称}`，在
      `components/figures/registry.ts` 注册，并通过知识点的 `figureIds` 引用。
+     每小节至少一张，必须是实体物件（禁止横竖线拼成的线框示意图）。
      绘制可参考 anatomy skill 的 `SKILL.md` 与项目内 `components/iso/` 工具包。
 5. **路由与部署**
    - 保持 HashRouter，确保 `dist/index.html` 可双击直接打开。

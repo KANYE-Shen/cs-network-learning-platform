@@ -7,6 +7,7 @@ export const ch1S12: Subsection[] = [
           knowledge: [
             {
               id: 'k1.2.1',
+              figureIds: ['f1.2.1-tiers'],
               title: '整体结构：边缘、核心与接入',
               en: 'Network Structure Overview',
               summary:

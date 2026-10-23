@@ -7,6 +7,7 @@ export const ch1S11: Subsection[] = [
           knowledge: [
             {
               id: 'k1.1.1',
+              figureIds: ['f1.1.1-nuts'],
               title: '互联网的“网、机、线”组成',
               en: 'Nuts and Bolts View',
               summary:

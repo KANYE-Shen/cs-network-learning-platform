@@ -7,6 +7,7 @@ export const ch1S13: Subsection[] = [
           knowledge: [
             {
               id: 'k1.3.1',
+              figureIds: ['f1.3.1-circuits'],
               title: '电路交换',
               en: 'Circuit Switching',
               summary:

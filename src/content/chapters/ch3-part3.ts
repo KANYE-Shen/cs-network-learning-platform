@@ -527,6 +527,7 @@ export const ch3Part3: Subsection[] = [
     knowledge: [
       {
         id: 'k3.6.1',
+        figureIds: ['f3.6.1-congestion'],
         title: '拥塞：成因与代价',
         en: 'Congestion: Causes & Costs',
         summary:
@@ -688,6 +689,7 @@ export const ch3Part3: Subsection[] = [
       },
       {
         id: 'k3.7.2',
+        figureIds: ['f3.7.2-cwnd'],
         title: '拥塞窗口机制全貌',
         en: 'Mechanism Details',
         summary:

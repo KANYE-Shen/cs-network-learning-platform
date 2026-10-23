@@ -518,6 +518,7 @@ export const ch2S25: Subsection[] = [
           knowledge: [
             {
               id: 'k2.5.5',
+              figureIds: ['f2.5.5-dnstree'],
               title: '迭代查询与递归查询',
               en: 'Iterated & Recursive Query',
               summary:

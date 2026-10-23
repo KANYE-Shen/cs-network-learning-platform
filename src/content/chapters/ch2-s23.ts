@@ -7,6 +7,7 @@ export const ch2S23: Subsection[] = [
           knowledge: [
             {
               id: 'k2.3.1',
+              figureIds: ['f2.3.1-ftp'],
               title: 'FTP：控制连接与数据连接',
               en: 'FTP',
               summary:

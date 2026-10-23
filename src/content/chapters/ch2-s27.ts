@@ -126,6 +126,7 @@ export const ch2S27: Subsection[] = [
             },
             {
               id: 'k2.7.2',
+              figureIds: ['f2.7.2-socketapi'],
               title: 'TCP 套接字编程',
               en: 'TCP Sockets',
               summary:

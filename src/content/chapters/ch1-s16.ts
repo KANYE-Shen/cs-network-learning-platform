@@ -119,6 +119,7 @@ export const ch1S16: Subsection[] = [
             },
             {
               id: 'k1.6.2',
+              figureIds: ['f1.6.2-ddos'],
               title: '拒绝服务攻击 DoS/DDoS',
               en: 'Denial of Service',
               summary:

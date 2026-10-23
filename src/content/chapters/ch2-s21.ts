@@ -326,6 +326,7 @@ export const ch2S21: Subsection[] = [
           knowledge: [
             {
               id: 'k2.1.3',
+              figureIds: ['f2.1.3-sockets'],
               title: '进程、套接字与端口',
               en: 'Processes & Sockets',
               summary:

@@ -41,25 +41,25 @@ export function Scene({
   return (
     <div
       className="iso"
-      data-theme="dark"
+      data-theme="light"
       style={
         {
-          background: '#14161a',
+          background: '#f4f3ef',
           border: '1px solid var(--border)',
           borderRadius: 10,
           padding: '2px 2px',
           '--anatomy-weight': '1.15px',
-          '--anatomy-paper': '#1c2025',
-          '--anatomy-face': '#2a2f36',
-          '--anatomy-top': '#333941',
-          '--anatomy-shade-0': '#1e2228',
-          '--anatomy-shade-1': '#23282e',
-          '--anatomy-shade-2': '#282d34',
-          '--anatomy-shade-3': '#2d323a',
-          '--anatomy-hi': '#eef1f5',
-          '--anatomy-mid': '#9aa4b0',
-          '--anatomy-lo': '#6a7480',
-          '--anatomy-faint': '#3c444e',
+          '--anatomy-paper': '#fbfbfa',
+          '--anatomy-face': '#ffffff',
+          '--anatomy-top': '#ffffff',
+          '--anatomy-shade-0': '#d8d8d4',
+          '--anatomy-shade-1': '#e2e2de',
+          '--anatomy-shade-2': '#ebece8',
+          '--anatomy-shade-3': '#f3f4f0',
+          '--anatomy-hi': '#26262a',
+          '--anatomy-mid': '#8a8a8f',
+          '--anatomy-lo': '#b4b4b8',
+          '--anatomy-faint': '#d4d4d6',
         } as React.CSSProperties
       }
     >

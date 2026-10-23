@@ -466,6 +466,7 @@ export const ch2S22: Subsection[] = [
             },
             {
               id: 'k2.2.4',
+              figureIds: ['f2.2.4-httptime'],
               title: '响应时间模型 2RTT+T',
               en: 'Response Time Modeling',
               summary:

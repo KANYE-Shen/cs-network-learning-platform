@@ -155,6 +155,7 @@ export const ch2S24: Subsection[] = [
             },
             {
               id: 'k2.4.2',
+              figureIds: ['f2.4.2-smtp'],
               title: 'SMTP 协议与工作过程',
               en: 'SMTP',
               summary:

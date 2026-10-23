@@ -8,6 +8,7 @@ export const ch3Part1: Subsection[] = [
     knowledge: [
       {
         id: 'k3.1.1',
+        figureIds: ['f3.1.1-transport'],
         title: '传输层服务概览',
         en: 'Transport Services',
         summary:
@@ -210,6 +211,7 @@ export const ch3Part1: Subsection[] = [
       },
       {
         id: 'k3.2.3',
+        figureIds: ['f3.2.3-demux'],
         title: '无连接分用（UDP）',
         en: 'Connectionless Demux',
         summary:
@@ -387,6 +389,7 @@ export const ch3Part1: Subsection[] = [
       },
       {
         id: 'k3.3.3',
+        figureIds: ['f3.3.3-checksum'],
         title: '因特网校验和',
         en: 'Internet Checksum',
         summary:
