@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f7f8fb;
+  --surface: #ffffff;
+  --surface-2: #f1f4f9;
+  --border: #e4e8ef;
+  --text: #1b2430;
+  --text-muted: #5b6675;
+  --brand: #3255db;
+}
+
+.dark {
+  --bg: #0d1117;
+  --surface: #151b23;
+  --surface-2: #1b2230;
+  --border: #273040;
+  --text: #e6ebf2;
+  --text-muted: #97a3b4;
+  --brand: #6b95f1;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  line-height: 1.75;
+}
+
+@layer components {
+  .surface {
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .surface-2 {
+    background: var(--surface-2);
+  }
+  .muted {
+    color: var(--text-muted);
+  }
+  .text-brand {
+    color: var(--brand);
+  }
+  .prose-cn p {
+    margin-block: 0.7rem;
+  }
+  .card {
+    @apply surface rounded-xl;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+  }
+  .btn {
+    @apply inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition
+      disabled:opacity-50 disabled:cursor-not-allowed select-none;
+  }
+  .btn-primary {
+    @apply btn text-white;
+    background: var(--brand);
+  }
+  .btn-primary:hover {
+    filter: brightness(1.06);
+  }
+  .btn-ghost {
+    @apply btn;
+    color: var(--text);
+    background: var(--surface-2);
+  }
+  .btn-ghost:hover {
+    filter: brightness(0.97);
+  }
+  .btn-outline {
+    @apply btn;
+    color: var(--text);
+    border: 1px solid var(--border);
+    background: transparent;
+  }
+  .btn-outline:hover {
+    background: var(--surface-2);
+  }
+  .chip {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .kbd {
+    @apply font-mono text-xs;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+}
+
+/* 滚动条 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 8px;
+}
+
+/* KaTeX 适配深色模式与字号 */
+.katex {
+  font-size: 1.06em;
+}
+.katex-display {
+  margin: 0.9rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* 演示区等宽字体标签 */
+.mono {
+  font-family: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+}
+
+/* 平滑过渡（主题切换） */
+.theme-anim,
+.theme-anim * {
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.12s ease;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+}
+
+/* 打印样式：题本/知识点页的打印友好版式 */
+@media print {
+  @page {
+    margin: 16mm 14mm;
+  }
+  body {
+    font-size: 11pt;
+    line-height: 1.65;
+  }
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  .card {
+    box-shadow: none !important;
+    border-color: #ccc !important;
+    break-inside: avoid;
+  }
+  a {
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+  .print\:break-inside-avoid {
+    break-inside: avoid;
+  }
+  .katex-display {
+    page-break-inside: avoid;
+  }
+}

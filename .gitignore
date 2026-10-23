@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+*.tsbuildinfo
+
+# local tooling
+.vite/
+coverage/
+*.log
+.DS_Store
+
+# course materials (copyrighted lecture slides; kept local only)
+*.pptx
+reference/ppt-text/
