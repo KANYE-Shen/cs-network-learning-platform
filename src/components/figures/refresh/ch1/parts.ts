@@ -8,21 +8,28 @@ let partIndex = 0
 
 /** Preserve the actual 3D arguments used by iso-kit drawing calls on their returned SVG group. */
 export function trackedKit(kit: typeof k): typeof k {
-  return new Proxy(kit, {
-    get(target, property, receiver) {
-      if (property === 'slabOf') return (plan: k.Plan, z: number, h: number, P: k.Projection, ...rest: unknown[]) => {
-        const paths = target.slabOf(plan, z, h, P, ...(rest as Parameters<typeof k.slabOf>[4][]))
+  // Production-bundled module namespace exports can be non-configurable and
+  // non-writable, so a Proxy get trap cannot safely return wrapped replacements.
+  // Use a child object instead: only the two tracked drawing methods are
+  // shadowed, while all other iso-kit helpers remain inherited unchanged.
+  const tracked = Object.create(kit) as typeof k
+  Object.defineProperties(tracked, {
+    slabOf: {
+      value: (plan: k.Plan, z: number, h: number, P: k.Projection, ...rest: unknown[]) => {
+        const paths = kit.slabOf(plan, z, h, P, ...(rest as Parameters<typeof k.slabOf>[4][]))
         shapeMeta.set(paths, { kind: 'slab', plan: { ...plan }, z, h, projection: { ...P, origin: [...P.origin] } })
         return paths
-      }
-      if (property === 'cylinder') return (x: number, y: number, r: number, z: number, h: number, P: k.Projection, ...rest: unknown[]) => {
-        const paths = target.cylinder(x, y, r, z, h, P, ...(rest as Parameters<typeof k.cylinder>[6][]))
+      },
+    },
+    cylinder: {
+      value: (x: number, y: number, r: number, z: number, h: number, P: k.Projection, ...rest: unknown[]) => {
+        const paths = kit.cylinder(x, y, r, z, h, P, ...(rest as Parameters<typeof k.cylinder>[6][]))
         shapeMeta.set(paths, { kind: 'cylinder', x, y, r, z, h, projection: { ...P, origin: [...P.origin] } })
         return paths
-      }
-      return Reflect.get(target, property, receiver)
+      },
     },
-  }) as typeof k
+  })
+  return tracked
 }
 
 const drawKit = trackedKit(k)
