@@ -31,6 +31,7 @@ type Snap = {
   acked: number[]
   inFlight: number[]
   lost: number[]
+  /** 最后按序收到的分组序号；-1 表示尚未收到。 */
   ack: number
   note: string
 }
@@ -42,8 +43,8 @@ const SNAPS: Snap[] = [
     acked: [],
     inFlight: [0, 1, 2, 3],
     lost: [],
-    ack: 0,
-    note: '发送窗口 [0,3]：一次性发出 4 个分组，接收方尚未确认。',
+    ack: -1,
+    note: '发送窗口 [0,3]：一次性发出 4 个分组，接收方尚未按序收到分组。',
   },
   {
     base: 2,
@@ -51,8 +52,8 @@ const SNAPS: Snap[] = [
     acked: [0, 1],
     inFlight: [2, 3, 4, 5],
     lost: [],
-    ack: 2,
-    note: '收到 ACK1（累积确认 0、1）→ base=2，窗口滑到 [2,5]，继续发送 4、5。',
+    ack: 1,
+    note: '最后按序收到分组 1（累积确认 0、1）→ base=2，窗口滑到 [2,5]，继续发送 4、5。',
   },
   {
     base: 2,
@@ -60,8 +61,8 @@ const SNAPS: Snap[] = [
     acked: [0, 1],
     inFlight: [3, 4, 5],
     lost: [2],
-    ack: 2,
-    note: '分组 2 丢失；3、4、5 乱序到达，接收方一律丢弃，重复回 ACK1。',
+    ack: 1,
+    note: '分组 2 丢失；3、4、5 乱序到达，接收方一律丢弃，仍只确认最后按序分组 1。',
   },
   {
     base: 2,
@@ -69,7 +70,7 @@ const SNAPS: Snap[] = [
     acked: [0, 1],
     inFlight: [],
     lost: [2],
-    ack: 2,
+    ack: 1,
     note: 'base=2 的定时器超时 → GBN 把窗口内所有未确认分组 2、3、4、5 全部重传。',
   },
   {
@@ -78,8 +79,8 @@ const SNAPS: Snap[] = [
     acked: [0, 1, 2, 3, 4, 5],
     inFlight: [6],
     lost: [],
-    ack: 6,
-    note: '重传后全部按序到达，ACK5 使 base=6，窗口滑到 [6,9]，发送 6。',
+    ack: 5,
+    note: '重传后全部按序到达，最后收到分组 5 使 base=6；序号空间为 0–7，窗口按模 8 为 [6,7,0,1]。',
   },
   {
     base: 6,
@@ -87,7 +88,7 @@ const SNAPS: Snap[] = [
     acked: [0, 1, 2, 3, 4, 5],
     inFlight: [6],
     lost: [],
-    ack: 6,
+    ack: 5,
     note: '代价：只丢了 1 个分组，却重传了 4 个——这就是 GBN 的“重传放大”。',
   },
 ]
@@ -172,7 +173,7 @@ export default function WindowFigure() {
       subtitle="示例窗口 N = 4，序号 0–7。绿=已确认，蓝=在途，红=丢失；白框是发送窗口。"
       readout={
         <>
-          base = {snap.base} · nextseqnum = {snap.next} · 收到的 ACK = {snap.ack} · 事件 {index + 1}/{SNAPS.length}
+          base = {snap.base} · nextseqnum = {snap.next} · 最后按序收到分组 = {snap.ack < 0 ? '无' : snap.ack} · 事件 {index + 1}/{SNAPS.length}
         </>
       }
       running={running}

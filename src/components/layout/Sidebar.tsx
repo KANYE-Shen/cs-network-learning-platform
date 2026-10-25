@@ -7,16 +7,22 @@ import { useSidebar } from '../../hooks/useSidebar'
 
 function ChapterTree({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation()
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => Object.fromEntries(
+    chapters.flatMap((chapter) => [chapter.id, ...chapter.sections.map((section) => section.id)]).map((id) => [id, true]),
+  ))
   const readIds =
     useLiveQuery(async () => new Set((await db.progress.toArray()).filter((p) => p.read).map((p) => p.knowledgeId)), []) ??
     new Set<string>()
 
   const activeChapter = location.pathname.match(/^\/chapter\/(ch\d)/)?.[1]
+  const activeKnowledge = location.pathname.match(/\/(k\d+\.\d+\.\d+)$/)?.[1]
+  const activeSection = activeKnowledge
+    ? chapters.flatMap((chapter) => chapter.sections).find((section) => section.subsections.some((sub) => sub.knowledge.some((point) => point.id === activeKnowledge)))?.id
+    : undefined
 
   useEffect(() => {
-    if (activeChapter) setCollapsed((c) => ({ ...c, [activeChapter]: false }))
-  }, [activeChapter])
+    if (activeChapter) setCollapsed((c) => ({ ...c, [activeChapter]: false, ...(activeSection ? { [activeSection]: false } : {}) }))
+  }, [activeChapter, activeSection])
 
   const toggle = (id: string) => setCollapsed((c) => ({ ...c, [id]: !c[id] }))
 
@@ -68,7 +74,7 @@ function ChapterTree({ onNavigate }: { onNavigate?: () => void }) {
                                     className={({ isActive }) =>
                                       `flex items-start gap-1.5 px-2 py-1 rounded-md text-[13px] transition ${
                                         isActive
-                                          ? 'bg-[var(--surface-2)] text-brand font-medium'
+                        ? 'bg-[var(--surface-2)] text-brand font-semibold border-l-2 border-brand'
                                           : 'hover:bg-[var(--surface-2)]'
                                       }`
                                     }
@@ -94,7 +100,7 @@ function ChapterTree({ onNavigate }: { onNavigate?: () => void }) {
                               }`
                             }
                           >
-                            📋 章节总结
+                            章节总结
                           </NavLink>
                         </div>
                       )}
@@ -117,40 +123,37 @@ export default function Sidebar() {
     return { mistakes, favorites }
   }, [])
 
-  const links = [
-    { to: '/', label: '首页', icon: '🏠' },
-    { to: '/questions', label: '题库练习', icon: '✏️' },
-    { to: '/favorites', label: '收藏题本', icon: '⭐', badge: stats?.favorites },
-    { to: '/mistakes', label: '错题本', icon: '📕', badge: stats?.mistakes },
-    { to: '/compare', label: '知识对比', icon: '⇄' },
-    { to: '/progress', label: '学习进度', icon: '📊' },
-    { to: '/backup', label: '数据备份', icon: '💾' },
+  const groups = [
+    { label: '学习', links: [{ to: '/', label: '课程首页', code: '01' }] },
+    { label: '练习', links: [
+      { to: '/questions', label: '题库练习', code: '02' },
+      { to: '/favorites', label: '收藏题本', code: '03', badge: stats?.favorites },
+      { to: '/mistakes', label: '错题本', code: '04', badge: stats?.mistakes },
+      { to: '/compare', label: '知识对比', code: '05' },
+    ] },
+    { label: '记录', links: [
+      { to: '/progress', label: '学习进度', code: '06' },
+      { to: '/backup', label: '数据备份', code: '07' },
+    ] },
   ]
 
   const content = (
     <>
-      <div className="space-y-0.5 mb-4">
-        {links.map((l) => (
-          <NavLink
-            key={l.to}
-            to={l.to}
-            end={l.to === '/'}
-            onClick={() => setOpen(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-sm transition ${
-                isActive ? 'bg-brand/10 text-brand font-medium' : 'hover:bg-[var(--surface-2)]'
-              }`
-            }
-          >
-            <span className="text-base leading-none">{l.icon}</span>
-            <span className="flex-1">{l.label}</span>
-            {l.badge ? <span className="chip text-[10px] py-0 px-1.5">{l.badge}</span> : null}
-          </NavLink>
-        ))}
+      <div className="sidebar-brand"><span className="sidebar-mark">N</span><span><b>网络学习</b><small>自顶向下 · 交互课程</small></span></div>
+      <div className="space-y-3 mb-4">
+        {groups.map((group) => <div key={group.label}>
+          <div className="sidebar-group-label">{group.label}</div>
+          <div className="space-y-0.5">{group.links.map((l) => (
+            <NavLink key={l.to} to={l.to} end={l.to === '/'} onClick={() => setOpen(false)} className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link-active' : ''}`}>
+              <span className="sidebar-link-code">{l.code}</span><span className="flex-1">{l.label}</span>
+              {l.badge ? <span className="chip text-[10px] py-0 px-1.5">{l.badge}</span> : null}
+            </NavLink>
+          ))}</div>
+        </div>)}
       </div>
 
       <div className="border-t pt-3" style={{ borderColor: 'var(--border)' }}>
-        <div className="px-2 pb-1.5 text-[11px] font-semibold muted uppercase tracking-wider">课程目录</div>
+        <div className="px-2 pb-1.5 text-[11px] font-semibold muted uppercase tracking-wider flex items-center justify-between"><span>课程目录</span><span className="font-normal">3 章 · 21 节</span></div>
         <ChapterTree onNavigate={() => setOpen(false)} />
       </div>
     </>

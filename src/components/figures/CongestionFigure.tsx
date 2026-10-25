@@ -360,8 +360,7 @@ export default function CongestionFigure() {
       }
       caption={
         <>
-          λin &gt; λout 时，队列以 <strong>λin − λout</strong> 的速率无界增长，缓存满后多余分组被丢弃（
-          <strong>丢包 = λin − λout</strong>）；λin &lt; λout 时队列排空，出口仍按 60 包/秒服务。示意值：每泵 25
+          有积压时出口可达 60 包/秒；队列排空后，吞吐为 <strong>min(λin, 60)</strong>。输入低于能力时队列逐渐排空，输入高于能力时队列增长并在有限缓存满后丢包。示意值：每泵 25
           包/秒，缓存 240 包。
         </>
       }

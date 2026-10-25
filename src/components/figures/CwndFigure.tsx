@@ -487,10 +487,11 @@ export default function CwndFigure() {
       }
       caption={
         <>
-          初始 cwnd = 1 MSS、ssthresh = 20 MSS：慢启动每 RTT 翻倍（蓝墨 1→2→4→8→16→32），越过阈值后转入拥塞避免（绿墨
-          +1 MSS/RTT）。第 10 个 RTT 收到 3 个重复 ACK：ssthresh = 36/2 = 18，cwnd = 18+3 = 21（橙墨）；第 17 个 RTT
-          超时：ssthresh = 22/2 = 11，cwnd 回到 1 MSS。纸带上红圈 = 3 个重复 ACK，红叉 = 超时；红色虚线与表盘红色游标 =
-          ssthresh，阀门口径与手轮随 cwnd 实时开合。
+          <p>慢启动将 cwnd 每 RTT 翻倍，越过 ssthresh 后转为线性增长。3 个重复 ACK 触发快速重传/恢复；超时会把 cwnd 重置为 1 MSS。</p>
+          <details className="mt-2">
+            <summary className="cursor-pointer text-brand text-xs font-medium">展开这条教学轨迹的参数与计算</summary>
+            <p className="mt-2">初始 cwnd = 1 MSS、ssthresh = 20 MSS：1→2→4→8→16→32 后转入拥塞避免（+1 MSS/RTT）。第 10 个 RTT 收到 3 个重复 ACK：ssthresh = 36/2 = 18，cwnd = 18+3 = 21；第 17 个 RTT 超时：ssthresh = 22/2 = 11，cwnd 回到 1 MSS。纸带红圈标出 3 个重复 ACK，红叉标出超时。</p>
+          </details>
         </>
       }
     >

@@ -115,8 +115,8 @@ export default function TopBar({ theme, onToggleTheme }: { theme: string; onTogg
       </div>
 
       <div className="flex items-center gap-1.5 ml-auto">
-        <button onClick={onToggleTheme} className="btn-ghost !px-2" title="切换主题">
-          {theme === 'dark' ? '🌙' : '☀️'}
+        <button onClick={onToggleTheme} className="btn-ghost !px-2 text-xs" aria-label={theme === 'dark' ? '切换浅色主题' : '切换深色主题'} title={theme === 'dark' ? '切换浅色主题' : '切换深色主题'}>
+          <span aria-hidden="true" className="font-semibold">{theme === 'dark' ? '深' : '浅'}</span><span className="hidden sm:inline">色模式</span>
         </button>
       </div>
     </header>

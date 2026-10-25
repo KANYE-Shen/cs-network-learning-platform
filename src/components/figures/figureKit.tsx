@@ -2,7 +2,8 @@
 // 图解公共组件：主题适配、等距 SVG 容器、播放控制与读数
 // 基于 anatomy kit（src/components/iso）的投影与实体渲染
 // ============================================================
-import { useEffect, useState, type ReactNode } from 'react'
+import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { FigureVisibilityContext } from './FigureHost'
 
 /** 跟随站点 <html class="dark"> 的浅/深主题 */
 export function useIsoTheme(): 'light' | 'dark' {
@@ -23,7 +24,17 @@ export function useIsoTheme(): 'light' | 'dark' {
 
 /** 是否偏好减少动态效果 */
 export function prefersStillness(): boolean {
-  return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  return typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+function usePageVisible(): boolean {
+  const [pageVisible, setPageVisible] = useState(() => typeof document === 'undefined' || document.visibilityState !== 'hidden')
+  useEffect(() => {
+    const onVisibility = () => setPageVisible(document.visibilityState !== 'hidden')
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [])
+  return pageVisible
 }
 
 /** 等距 SVG 容器（iso.css 依赖 .iso 包裹层） */
@@ -38,28 +49,18 @@ export function Scene({
   label: string
   svg: string
 }) {
+  const theme = useIsoTheme()
   return (
     <div
       className="iso"
-      data-theme="light"
+      data-theme={theme}
       style={
         {
-          background: '#f4f3ef',
+          background: 'var(--surface-2)',
           border: '1px solid var(--border)',
           borderRadius: 10,
           padding: '2px 2px',
           '--anatomy-weight': '1.15px',
-          '--anatomy-paper': '#fbfbfa',
-          '--anatomy-face': '#ffffff',
-          '--anatomy-top': '#ffffff',
-          '--anatomy-shade-0': '#d8d8d4',
-          '--anatomy-shade-1': '#e2e2de',
-          '--anatomy-shade-2': '#ebece8',
-          '--anatomy-shade-3': '#f3f4f0',
-          '--anatomy-hi': '#26262a',
-          '--anatomy-mid': '#8a8a8f',
-          '--anatomy-lo': '#b4b4b8',
-          '--anatomy-faint': '#d4d4d6',
         } as React.CSSProperties
       }
     >
@@ -85,6 +86,7 @@ export function FigureCard({
   onToggle,
   onReset,
   extra,
+  legend,
   caption,
   children,
 }: {
@@ -96,11 +98,27 @@ export function FigureCard({
   onToggle: () => void
   onReset?: () => void
   extra?: ReactNode
+  legend?: ReactNode
   caption?: ReactNode
   children: ReactNode
 }) {
+  const [reducedMotion, setReducedMotion] = useState(prefersStillness)
+  const previousReducedMotion = useRef(reducedMotion)
+  const inView = useContext(FigureVisibilityContext)
+  const pageVisible = usePageVisible()
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const update = () => setReducedMotion(query.matches)
+    query.addEventListener?.('change', update)
+    return () => query.removeEventListener?.('change', update)
+  }, [])
+  useEffect(() => {
+    if (reducedMotion && !previousReducedMotion.current && running) onToggle()
+    previousReducedMotion.current = reducedMotion
+  }, [reducedMotion])
   return (
-    <figure className="card overflow-hidden">
+    <figure className="card overflow-hidden figure-card" data-playing={running && inView && pageVisible}>
       <header className="px-4 sm:px-5 pt-4 pb-3 border-b" style={{ borderColor: 'var(--border)' }}>
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="min-w-0">
@@ -108,13 +126,13 @@ export function FigureCard({
             <h3 className="font-semibold leading-snug">{title}</h3>
             {subtitle && <p className="text-xs muted mt-0.5 leading-relaxed">{subtitle}</p>}
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="figure-controls flex items-center gap-2 shrink-0">
             {extra}
             <button onClick={onToggle} className="btn-ghost" aria-pressed={running}>
               {running ? '❚❚ 暂停' : '▶ 播放'}
             </button>
             {onReset && (
-              <button onClick={onReset} className="btn-outline" title="重置">
+              <button onClick={onReset} className="btn-outline" title="重置动画" aria-label="重置动画">
                 ↺
               </button>
             )}
@@ -122,7 +140,10 @@ export function FigureCard({
         </div>
       </header>
 
-      <div className="px-3 sm:px-5 py-4">{children}</div>
+      <div className="px-3 sm:px-5 py-4">
+        {children}
+        {legend && <div className="figure-legend">{legend}</div>}
+      </div>
 
       <div
         className="px-4 sm:px-5 py-3 border-t flex flex-wrap items-center gap-x-5 gap-y-2 text-xs"
@@ -151,18 +172,25 @@ export function usePlayClock(
   initial = 0,
 ): [number, (updater: number | ((t: number) => number)) => void] {
   const [t, setT] = useState(initial)
+  const inView = useContext(FigureVisibilityContext)
+  const pageVisible = usePageVisible()
   useEffect(() => {
-    if (!running) return
+    if (!running || !inView || !pageVisible) return
     let raf = 0
     let last = 0
+    let elapsed = 0
     const step = (now: number) => {
-      const dt = last ? Math.min((now - last) / 1000, 1 / 30) : 1 / 60
+      const dt = last ? Math.min((now - last) / 1000, 0.25) : 0
       last = now
-      setT((x) => x + dt)
+      elapsed += dt
+      if (elapsed >= 1 / 30) {
+        setT((x) => x + elapsed)
+        elapsed = 0
+      }
       raf = requestAnimationFrame(step)
     }
     raf = requestAnimationFrame(step)
     return () => cancelAnimationFrame(raf)
-  }, [running])
+  }, [running, inView, pageVisible])
   return [t, setT]
 }

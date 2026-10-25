@@ -106,8 +106,14 @@ async function check() {
     console.log(`   ${cid}: ${pts.length} 个知识点, 覆盖 ${slides.size} 页 PPT`)
   }
 
-  // 检查章节内容文件（支持 chN.ts 与 chN-partX.ts 两种布局）
-  const chapterFiles = { ch1: ['ch1.ts'], ch2: ['ch2.ts'], ch3: ['ch3-part1.ts', 'ch3-part2.ts', 'ch3-part3.ts'] }
+  // 章节入口通过 chN.ts 汇总；知识点实际分散在 chN-sNN.ts 或 chN-partN.ts。
+  const contentDir = join(ROOT, 'src', 'content', 'chapters')
+  const filesInContent = readdirSync(contentDir)
+  const chapterFiles = Object.fromEntries(Object.keys(chapterOutlines).map((cid) => {
+    const modules = filesInContent.filter((file) => new RegExp(`^${cid}(?:-s\\d+|-part\\d+)\\.ts$`).test(file)).sort()
+    return [cid, modules.length ? modules : filesInContent.includes(`${cid}.ts`) ? [`${cid}.ts`] : []]
+  }))
+  let hasErrors = false
   for (const [cid, files] of Object.entries(chapterFiles)) {
     let ids = []
     let missingFiles = []
@@ -121,11 +127,12 @@ async function check() {
     const missing = expected.filter((e) => !ids.includes(e))
     const extra = ids.filter((i) => !expected.includes(i))
     console.log(
-      `   ${missingFiles.length === 0 && missing.length === 0 && extra.length === 0 ? '✓' : '✗'} ${cid}: 实现 ${ids.length}/${expected.length}` +
+      `   ${missingFiles.length === 0 && missing.length === 0 && extra.length === 0 && ids.length === expected.length ? '✓' : '✗'} ${cid}: 实现 ${ids.length}/${expected.length}` +
         (missingFiles.length ? `  缺文件: ${missingFiles.join(', ')}` : '') +
         (missing.length ? `  缺少: ${missing.join(', ')}` : '') +
         (extra.length ? `  多余: ${extra.join(', ')}` : ''),
     )
+    hasErrors ||= missingFiles.length > 0 || missing.length > 0 || extra.length > 0 || ids.length !== expected.length
   }
 
   // 检查题目
@@ -133,7 +140,7 @@ async function check() {
   let allIds = []
   for (const qf of qFiles) {
     const fp = join(ROOT, 'src', 'content', 'questions', qf)
-    if (!existsSync(fp)) { console.log(`   ✗ 缺少题目文件 ${qf}`); continue }
+    if (!existsSync(fp)) { console.log(`   ✗ 缺少题目文件 ${qf}`); hasErrors = true; continue }
     const src = readFileSync(fp, 'utf8')
     const ids = [...src.matchAll(/id:\s*'(q[^']+)'/g)].map((m) => m[1])
     allIds = allIds.concat(ids)
@@ -142,7 +149,9 @@ async function check() {
   }
   const dup = allIds.filter((x, i) => allIds.indexOf(x) !== i)
   console.log(`   ${dup.length === 0 ? '✓' : '✗'} 题目总数 ${allIds.length}, 重复 ID: ${dup.length || '无'}`)
+  hasErrors ||= dup.length > 0
   console.log('')
+  if (hasErrors) process.exitCode = 1
 }
 
 // ---------------------------------------------------------------- main
@@ -151,7 +160,7 @@ console.log(`\n=== 计算机网络学习平台 · PPT 扫描工具 ===\n`)
 
 if (MODE === 'check') {
   await check()
-  process.exit(0)
+  process.exit(process.exitCode ?? 0)
 }
 
 const ppts = listPptFiles()

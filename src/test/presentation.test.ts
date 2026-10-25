@@ -6,6 +6,7 @@ import { isValidElement, type ReactNode } from 'react'
 import { normalizeLatex, renderWithMath } from '../components/content/ContentRenderer'
 import { figureRegistry } from '../components/figures/registry'
 import { chapters, flatKnowledge } from '../content/registry'
+import { subsectionFigures } from '../content/learning'
 import type { ContentBlock } from '../types/content'
 
 /** 递归收集内容块中的所有字符串字段 */
@@ -58,7 +59,6 @@ describe('行内富文本', () => {
     expect(Array.isArray(strong!.props.children) || isValidElement(strong!.props.children)).toBe(true)
   })
 })
-
 describe('公式归一化', () => {
   it('多字母下标转为正体', () => {
     expect(normalizeLatex('d_{trans} = \\frac{L}{R}')).toBe('d_{\\mathrm{trans}} = \\frac{L}{R}')
@@ -72,13 +72,13 @@ describe('公式归一化', () => {
 
 describe('图解注册', () => {
   it('内容中引用的每个 figureId 都已注册组件', () => {
-    const referenced = flatKnowledge.flatMap((k) => k.figureIds ?? [])
+    const referenced = [...flatKnowledge.flatMap((k) => k.figureIds ?? []), ...Object.values(subsectionFigures).map((entry) => entry.figureId)]
     const missing = referenced.filter((id) => !figureRegistry[id])
     expect(missing).toEqual([])
   })
 
   it('已注册的图解 ID 都被某个知识点引用（避免孤立组件）', () => {
-    const referenced = new Set(flatKnowledge.flatMap((k) => k.figureIds ?? []))
+    const referenced = new Set([...flatKnowledge.flatMap((k) => k.figureIds ?? []), ...Object.values(subsectionFigures).map((entry) => entry.figureId)])
     const orphan = Object.keys(figureRegistry).filter((id) => !referenced.has(id))
     expect(orphan).toEqual([])
   })

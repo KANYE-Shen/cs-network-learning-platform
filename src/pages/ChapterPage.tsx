@@ -15,6 +15,7 @@ import { DemoHost } from '../components/demos/DemoHost'
 import { FigureHost } from '../components/figures/FigureHost'
 import QuestionCard from '../components/questions/QuestionCard'
 import { QUESTION_TYPE_LABEL, DIFFICULTY_LABEL } from '../components/questions/labels'
+import { learningBriefs, subsectionFigures } from '../content/learning'
 
 export default function ChapterPage() {
   const { chapterId = 'ch1', knowledgeId } = useParams()
@@ -139,12 +140,13 @@ export default function ChapterPage() {
   const kFlat = flatKnowledge.find((x) => x.id === k.id)!
   const relatedQs = (k.questionIds ?? []).map((id) => questionById.get(id)).filter(Boolean)
   const demos = (k.demoIds ?? []).map((id) => demoById.get(id)).filter(Boolean)
-  const figures = k.figureIds ?? []
+  const figureEntry = subsectionFigures[kFlat.subsectionId]
+  const brief = learningBriefs[k.id] ?? []
   const related = (k.related ?? []).map((id) => knowledgeById.get(id)).filter(Boolean)
 
   return (
-    <div className="flex gap-6 items-start">
-      <div className="flex-1 min-w-0 space-y-5">
+    <div className="flex flex-col xl:flex-row gap-6 items-start">
+      <div className="order-2 xl:order-1 flex-1 min-w-0 w-full space-y-5">
       <Breadcrumb
         items={[
           { label: chapter.title, to: `/chapter/${chapter.id}` },
@@ -153,8 +155,8 @@ export default function ChapterPage() {
         ]}
       />
 
-      <header className="card p-5 sm:p-6">
-        <div className="flex flex-wrap items-center gap-2 mb-2.5">
+      <header className="knowledge-heading">
+        <div className="flex flex-wrap items-center gap-2 mb-2">
           {kFlat.slides.length > 0 && (
             <span className="chip">PPT {chapter.pptFile?.replace('.pptx', '')} · 第 {kFlat.slides[0]}{kFlat.slides.length > 1 ? `-${kFlat.slides[kFlat.slides.length - 1]}` : ''} 页</span>
           )}
@@ -163,25 +165,35 @@ export default function ChapterPage() {
           ))}
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{k.title}</h1>
-        {k.en && <p className="muted mt-1 text-sm italic">{k.en}</p>}
-        <p className="mt-3 text-[0.97rem] leading-relaxed">{k.summary}</p>
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        {k.en && <p className="muted mt-1 text-xs italic">{k.en}</p>}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <button
             onClick={() => setProgress(k.id, !isRead)}
             className={isRead ? 'btn-ghost' : 'btn-primary'}
           >
             {isRead ? '✓ 已标记学完' : '标记为已学完'}
           </button>
-          <SourceBadges sources={k.sources} />
+          {k.sources?.length ? <details key={k.id} className="source-details"><summary>来源 · {k.sources.length}</summary><SourceBadges sources={k.sources} /></details> : null}
         </div>
       </header>
 
-      {k.insight && <InsightPanel insight={k.insight} />}
-
-      {figures.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="text-lg font-semibold">图解</h2>
-          {figures.map((id) => <FigureHost key={id} figureId={id} />)}
+      {figureEntry && (
+        <section className="learning-feature" aria-label="本小节图解与快速学习">
+          <div className="learning-figure" aria-label="本小节相关图解">
+            <div className="learning-figure-context"><span className="text-xs font-semibold text-brand">图解提示</span><span className="text-sm leading-relaxed">{figureEntry.contextByKnowledge[k.id]}</span></div>
+            <FigureHost figureId={figureEntry.figureId} />
+          </div>
+          <section className="card p-4 sm:p-5 learning-path" aria-labelledby="learning-path-title">
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <div><p className="text-xs font-semibold tracking-wide text-brand">本小节 · 快速路径</p><h2 id="learning-path-title" className="text-lg font-semibold mt-1">快速学习</h2></div>
+              <span className="chip">{brief.length} 个要点</span>
+            </div>
+            <ul className="learning-brief-list">
+              {brief.map((item, index) => (
+                <li key={`${k.id}-${index}`}><span className="learning-brief-index">{String(index + 1).padStart(2, '0')}</span><span><ContentRenderer blocks={[{ type: 'p', text: item }]} /></span></li>
+              ))}
+            </ul>
+          </section>
         </section>
       )}
 
@@ -192,9 +204,15 @@ export default function ChapterPage() {
         </section>
       )}
 
-      <article className="card p-5 sm:p-6">
-        <ContentRenderer blocks={k.blocks} onNavigate={(id) => navigate(resolveNav(id))} demoRegistry={demoRegistry} />
-      </article>
+      <details key={k.id} className="card full-lesson">
+        <summary className="full-lesson-summary">查看完整讲解、推导与来源</summary>
+        <div className="full-lesson-content space-y-5">
+          {k.insight && <InsightPanel insight={k.insight} />}
+          <article className="prose-cn">
+            <ContentRenderer blocks={k.blocks} onNavigate={(id) => navigate(resolveNav(id))} demoRegistry={demoRegistry} />
+          </article>
+        </div>
+      </details>
 
       {related.length > 0 && (
         <section className="card p-5">
@@ -218,7 +236,7 @@ export default function ChapterPage() {
 
       <Pager id={k.id} />
       </div>
-      <KnowledgeIndex chapterId={chapter.id} activeId={k.id} />
+      <div className="order-1 xl:order-2 w-full xl:w-auto"><KnowledgeIndex chapterId={chapter.id} activeId={k.id} /></div>
     </div>
   )
 }
