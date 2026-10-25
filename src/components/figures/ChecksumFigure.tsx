@@ -294,7 +294,7 @@ export default function ChecksumFigure() {
         <>
           A + B = <strong>0xE666 + 0xD555 = 0x1BBBB</strong>；最高位进位回卷，得{' '}
           <strong>0xBBBC</strong>；按位取反得到校验和 <strong>0x4443</strong>。接收端把含校验和的内容再求和，结果为 0xFFFF
-          即认定无差错。
+          即未检测到差错；校验和可能漏检某些错误，不构成无差错证明。
         </>
       }
     >

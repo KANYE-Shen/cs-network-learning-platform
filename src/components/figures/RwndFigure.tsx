@@ -10,8 +10,8 @@ const W = 820
 const H = 340
 const RCV_BUFFER = 4096
 const SEND_RATE = 2400 // 发送方灌入速率（字节/秒，示意值）
-const READ_RATES = [512, 1024, 2048]
-const READ_LABELS = ['慢速读取 512 B/s', '中速读取 1024 B/s', '快速读取 2048 B/s']
+const READ_RATES = [512, 1024, 2048, 0]
+const READ_LABELS = ['慢速读取 512 B/s', '中速读取 1024 B/s', '快速读取 2048 B/s', '暂停读取 0 B/s']
 
 const TANK = { cx: 0, cy: 0, r: 40, h: 110 }
 const GROUND = { x: -180, y: -70, w: 350, d: 150, r: 10 }
@@ -156,8 +156,8 @@ export default function RwndFigure() {
       }
       caption={
         <>
-          接收方通告 <strong>rwnd = {RCV_BUFFER} − 已缓存未读</strong>，发送方保证在途未确认数据不超过 rwnd。读取慢时水位上升、rwnd 降为
-          0，发送方必须停下；读取加快后 rwnd 回升，发送恢复。发送方实际窗口还要与拥塞窗口取小：
+          接收方通告 <strong>rwnd = {RCV_BUFFER} − 已缓存未读</strong>，发送方保证在途未确认数据不超过 rwnd。暂停读取时缓冲区逐渐填满，rwnd 降为
+          0，发送方必须停下；恢复读取后 rwnd 回升，发送恢复。图中用恒定速率和离散采样近似缓冲变化。发送方实际窗口还要与拥塞窗口取小：
           <strong> min(rwnd, cwnd)</strong>。
         </>
       }

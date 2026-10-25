@@ -25,7 +25,6 @@ function ScrollManager() {
   }, [pathname])
   return null
 }
-
 function BackToTop() {
   const { pathname } = useLocation()
   const [show, setShow] = useState(false)
@@ -79,6 +78,7 @@ export default function App() {
         </main>
         <footer className="no-print border-t py-4 text-center text-xs muted" style={{ borderColor: 'var(--border)' }}>
           计算机网络交互式学习平台 · 内容依据哈工大威海《计算机网络：自顶向下方法》课程 PPT · 学习数据保存在本机浏览器
+          <p className="app-signature"><span>KnayeShen</span><span>Design By KanyeShen in HITwh</span></p>
         </footer>
       </div>
       <BackToTop />

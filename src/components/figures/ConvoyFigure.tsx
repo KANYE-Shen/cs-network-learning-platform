@@ -166,7 +166,7 @@ export default function ConvoyFigure() {
         >
           {SCENARIOS.map((s, i) => (
             <option key={s.name} value={i}>
-              {s.name}
+              {s.name} · 收费 {s.boothLabel}
             </option>
           ))}
         </select>
